@@ -25,7 +25,7 @@ def NoiseCancelling(path_image_input, path_image_output, level):
         # 模型地址
         module_path = "model\\Entropia_jpg_lv1-150"
     if level == 2:
-        module_path = "model\\Entropia_jpg_lv2-282"
+        module_path = "model\\Entropia_jpg_lv2-82"
 
     try:
         saver = tf.train.import_meta_graph(module_path + ".meta")

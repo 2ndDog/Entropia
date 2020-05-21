@@ -4,7 +4,7 @@ import h5py
 import os
 
 block_low = 33
-block_high = 54
+block_high = 50
 
 resolution = 2
 
@@ -96,7 +96,7 @@ data_train_low_ooo = data_train_low[permutation, :, :, :]
 data_train_high_ooo = data_train_high[permutation, :, :, :]
 
 # 保存为h5文件
-h5path = os.path.join(os.getcwd(), "checkpoint\\train_test.h5")
+h5path = os.path.join(os.getcwd(), "checkpoint\\train_msrn.h5")
 with h5py.File(h5path, 'w') as hf:
     hf.create_dataset("lr", data=data_train_low_ooo)
     hf.create_dataset("hr", data=data_train_high_ooo)

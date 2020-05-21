@@ -357,7 +357,13 @@ healthchecksdb
 /Entropia/lr2(b).png
 /Entropia/hr3.png
 /Entropia/hr2.png
-/Entropia/Entropia.svg
+/Entropia/made_h5_test.py
+/Entropia/made_h5_temp.py
+/Entropia/made_h5.py
+/Entropia/made_mk2.py
+/Entropia/Entropia_test.py
+/Entropia/Entropia_temp.py
+/Entropia/Entropia_mk2.py
 /Entropia/Entropia.pyproj
 /Entropia/Entropia.ico
 /Entropia/Entropia.7z
@@ -373,3 +379,4 @@ healthchecksdb
 /Entropia/0562.png
 /Entropia/0214.png
 /Entropia/0038.png
+/Entropia/main.py

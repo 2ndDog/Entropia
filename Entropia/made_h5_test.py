@@ -9,7 +9,7 @@ except:
     xrange = range
 
 block_low = 33
-block_high = 54
+block_high = 50
 
 resolution = 2
 

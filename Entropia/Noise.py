@@ -24,7 +24,7 @@ image_jpg_channels = cv.split(image_jpg_YCrCb)
 # 通道噪点
 noise_Y = Image.fromarray((image_source_channels[0] - image_jpg_channels[0]) + 128)
 noise_Cr = Image.fromarray((image_source_channels[1] - image_jpg_channels[1]) + 128)
-noise_Cb = Image.fromarray((image_source_channels[2] - image_jpg_channels[2]) + 128)
+noise_Cb = Image.fromarray((image_source_channe	ls[2] - image_jpg_channels[2]) + 128)
 
 noise_source.show()
 noise_Y.show()

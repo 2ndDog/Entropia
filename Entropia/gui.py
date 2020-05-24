@@ -137,13 +137,16 @@ def Enlarge(frame_parent):
         if var_enl.get() == 2:
             ent_size.configure(state="normal")
 
+    # 更新后缀
+    UpdateSuffix()
+
 
 # 降噪等级
 def DenoiseLevel(frame_parent):
-    rad_lv1 = Radiobutton(frame_parent, text="1级", variable=var_noise, value=1)
+    rad_lv1 = Radiobutton(frame_parent, text="1级", variable=var_noise, value=1,command=lambda: DenoiseLevel(frame_parent))
     rad_lv1.grid(row=0, column=0, sticky=W)
 
-    rad_lv2 = Radiobutton(frame_parent, text="2级", variable=var_noise, value=2)
+    rad_lv2 = Radiobutton(frame_parent, text="2级", variable=var_noise, value=2,command=lambda: DenoiseLevel(frame_parent))
     rad_lv2.grid(row=1, column=0, sticky=W)
 
     if var_mode.get() != 2:
@@ -153,6 +156,10 @@ def DenoiseLevel(frame_parent):
         rad_lv1.configure(state="normal")
         rad_lv2.configure(state="normal")
 
+    # 更新后缀
+    UpdateSuffix()
+
+'''
 
 # 更新后缀
 def UpdateSuffix():
@@ -167,6 +174,22 @@ def UpdateSuffix():
         path_output = os.path.join(os.path.abspath(filepath),
                                    AddExtension(field_path_input.get()))
         field_path_output.set(path_output)
+
+'''
+
+
+# 更新后缀
+def UpdateSuffix():
+    if field_path_input.get() == "":
+        return 0
+    # 获取输出文件名
+    path_output = field_path_output.get()
+    # 分离路径和文件名
+    (filepath, tempfilename) = os.path.split(path_output)
+    # 添加后缀
+    path_output = os.path.join(os.path.abspath(filepath),
+                               AddExtension(field_path_input.get()))
+    field_path_output.set(path_output)
 
 
 # 配置功能类
@@ -198,6 +221,9 @@ def FunctionConf(frame_parent):
     if var_state.get() == 1:
         but_execute.configure(state="disabled")
         but_cancel.configure(state="normal")
+
+    # 更新后缀
+    UpdateSuffix()
 
 
 # 显示进度
@@ -263,6 +289,27 @@ def RunningLog(frame_parent):
     text.configure(state="disabled")
     text.pack(fill=BOTH)
     _thread.start_new_thread(ShowLog, (text, ))
+
+
+# 检测是否修改文本框
+def MonitorText():
+    before_text_mul=var_mul.get() # 获取之前放大倍率
+    before_text_size=var_size.get() # 获取之前放大尺寸
+    while(True):
+        time.sleep(0.2)
+        current_text_mul=var_mul.get() # 获取当前放大倍率
+        current_text_size=var_size.get() # 获取当前放大尺寸
+
+        # 检测是否更改文本
+        if current_text_mul==before_text_mul and current_text_size==before_text_size:
+            # 检测到未更改
+            continue
+
+        # 检测到更改
+        UpdateSuffix()
+        # 更新检测状态
+        before_text_mul=current_text_mul
+        before_text_size=current_text_size
 
 
 # 添加后缀
@@ -473,8 +520,9 @@ RunningLog(frame_log)
 
 # 监视者
 _thread.start_new_thread(Monitor, ())
+
 # 更新路径
-_thread.start_new_thread(UpdateSuffix, ())
+_thread.start_new_thread(MonitorText, ())
 
 # 循环
 window.mainloop()

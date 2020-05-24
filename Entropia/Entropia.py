@@ -8,7 +8,7 @@ try:
 except:
     xrange = range
 
-train_continue = 85
+train_continue = 88
 if train_continue != 0:
     checkpoint_path = "model\\Entropia-" + str(train_continue)
     saver = tf.train.import_meta_graph(checkpoint_path + ".meta")
@@ -376,7 +376,7 @@ global_step = tf.Variable(train_continue + 1)  #定义global_step 它会自动+1
 
 learning_rate_continue = 1e-3 * pow(0.99, train_continue)
 learning_rate = tf.train.exponential_decay(
-    1e-3, global_step, 100, 0.98, staircase=True) + 5e-5  #生成学习率
+    1e-3, global_step, 100, 0.98, staircase=True) + 2e-5  #生成学习率
 
 optimizer1 = tf.train.AdamOptimizer(learning_rate).minimize(
     l1, global_step=global_step)

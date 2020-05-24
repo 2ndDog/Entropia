@@ -23,7 +23,8 @@ def Enlarge(path_image_input, path_image_output, multiple=None, size=None):
         return 1
 
     # 模型路径
-    module_path = "model\\Entropia-87"
+    #module_path = "model\\Entropia-88"
+    module_path = "model\\MSRN-35"
 
     try:
         saver = tf.train.import_meta_graph(module_path + ".meta")
@@ -34,13 +35,13 @@ def Enlarge(path_image_input, path_image_output, multiple=None, size=None):
 
     low = 33
 
-    high = 54
+    high = 50
 
     stride = 17
 
     resolution = 2
 
-    pad = 2
+    pad = (low * resolution - high) // (resolution * 2)
 
     stride_high = stride * resolution
 
@@ -180,20 +181,23 @@ def Enlarge(path_image_input, path_image_output, multiple=None, size=None):
 
                         for h in range(h_offset, high):
                             for w in range(w_offset, high):
-                                result_image[result_x + h][result_y +w] = result[h][w]
+                                result_image[result_x + h][result_y +
+                                                           w] = result[h][w]
 
                         #柔化边缘
                         for h in xrange(edge):
                             for w in xrange(high):
                                 result_image[result_x + h][result_y + w] = (
                                     result_image[result_x + h][result_y + w] *
-                                    (1 - (h / edge))) + (result[h][w] * (h / edge))
+                                    (1 - (h / edge))) + (result[h][w] *
+                                                         (h / edge))
 
                         for h in xrange(high):
                             for w in xrange(edge):
                                 result_image[result_x + h][result_y + w] = (
                                     result_image[result_x + h][result_y + w] *
-                                    (1 - (w / edge))) + (result[h][w] * (w / edge))
+                                    (1 - (w / edge))) + (result[h][w] *
+                                                         (w / edge))
 
                         # 输出进度
                         print(

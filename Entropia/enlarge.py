@@ -23,8 +23,8 @@ def Enlarge(path_image_input, path_image_output, multiple=None, size=None):
         return 1
 
     # 模型路径
-    #module_path = "model\\Entropia-88"
-    module_path = "model\\MSRN-35"
+    module_path = "model\\Entropia-88"
+    #module_path = "model\\MSRN-35"
 
     try:
         saver = tf.train.import_meta_graph(module_path + ".meta")
@@ -35,7 +35,7 @@ def Enlarge(path_image_input, path_image_output, multiple=None, size=None):
 
     low = 33
 
-    high = 50
+    high = 54
 
     stride = 17
 

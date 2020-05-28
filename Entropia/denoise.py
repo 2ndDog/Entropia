@@ -9,6 +9,11 @@ try:
 except:
     xrange = range
 
+# 读取图像路径,防止中文路径问题
+def cv_imread(file_path = ""):
+    file_path_gbk = file_path.encode('gbk')        # unicode转gbk，字符串变为字节数组
+    img_mat = cv.imread(file_path_gbk.decode())  # 字节数组直接转字符串，不解码
+    return img_mat
 
 def NoiseCancelling(path_image_input, path_image_output, level):
     # 初始化信号量
@@ -49,7 +54,7 @@ def NoiseCancelling(path_image_input, path_image_output, level):
         Gvar.Ending()
         return 1
 
-    image = cv.imread(path_image_input)
+    image = cv_imread(path_image_input)
 
     if image is None:
         Gvar.setLogs("图片加载失败", 2)

@@ -8,7 +8,7 @@ try:
 except:
     xrange = range
 
-train_continue = 11
+train_continue = 20
 if train_continue != 0:
     checkpoint_path = "model\\Entropia-" + str(train_continue)
     saver = tf.train.import_meta_graph(checkpoint_path + ".meta")

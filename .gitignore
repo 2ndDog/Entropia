@@ -385,3 +385,6 @@ healthchecksdb
 /Entropia/Noise.py
 /Entropia/temp0.py
 /Entropia/temp1.py
+/Entropia/Jpg_test_rgb.py
+/Entropia/Jpg_test_yuv.py
+/Entropia/RGBmodel.py

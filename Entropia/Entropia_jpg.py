@@ -79,7 +79,7 @@ num_filters_conv3 = 64
 merge_num_filters_conv_YUV = num_filters_conv3 + U_num_filters_conv2 + V_num_filters_conv2
 
 kernel_size_conv4 = 3  # 第4次
-num_filters_conv4 = 32
+num_filters_conv4 = 36
 
 kernel_size_conv5 = 3  # 第5次
 num_filters_conv5 = 3

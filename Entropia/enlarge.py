@@ -11,8 +11,8 @@ except:
     xrange = range
 
 # 读取图像路径,防止中文路径问题
-def cv_imread(image_path = ""):
-    cv_img = cv2.imdecode(np.fromfile(image_path,dtype=np.uint8),-1)
+def cvImread(image_path = ""):
+    cv_img = cv.imdecode(np.fromfile(image_path,dtype=np.uint8),-1)
     return cv_img
 
 # 保存图像,中文路径问题

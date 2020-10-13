@@ -4,7 +4,7 @@
 temp: 基于MDRN(Multi-scale residual dense network)的单图像超分辨率
 ### MRDN模型
 ![image](https://github.com/2ndDog/Entropia/blob/master/MRDN_model_SVG.svg)
-### RDN(残差密集块)
+### RDB(Residual Dense Blocks, 残差密集块)
 ![image](NULL)
 ### MRDN超分辨率重建结果
 ![image](https://github.com/2ndDog/Entropia/blob/master/MRDN.png)

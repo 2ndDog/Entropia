@@ -1,11 +1,10 @@
 import tensorflow as tf
-
 """
 ===============网络参数===============
 """
 # 分辨率
 size_lr = 65
-size_hr = 118
+size_hr = 114
 
 # 输入通道数
 num_input_channel = 1
@@ -13,54 +12,59 @@ num_input_channel = 1
 # 放大倍数
 multiple = 2
 
-# 全局特征融合后层数
-num_filters_gff = 64
-
 # Bottleneck层参数
 size_kernel_bk = 1
 
-# 预处理卷积层
-size_kernel_pre = 3
-num_filters_pre = 32
+# 残差块feature map数量
+num_filters_des = 32
 
-# 密集块参数
-size_kernel_des_b = 3
-num_filters_des_b = 32
-num_layers_des_b = 4
+# 预处理卷积
+size_kernel_pre = 5
+num_filters_pre = 64
 
-# 密集连接参数
-num_layers_des = 4
+# 全局特征融合
+size_kernel_gff = 3
+num_filters_gff = 64
 
-# 卷积1
-size_kernel_conv1 = 3
-num_filters_conv1 = 32
-
-# 卷积2
-size_kernel_conv2 = 5
-num_filters_conv2 = 1
-
-"""
-^^^^^^^^^^^^^^^网络参数^^^^^^^^^^^^^^^
-"""
+# 像素重组
+size_kernel_ps = 5
+num_filters_ps = 1
 
 
-def DenseConvBlock(layer_input):
+def DenseResBlock(input_layer, size_kernel_des, num_layers_des):
+    # 用于保存最新的卷积层
+    global layer_latest
+
     # 在循环前 第一层为输入数据
-    layer_before = layer_input
+    layer_before = input_layer
 
     # 用于存储输入前所有层数
-    list_layer_des = [layer_input]
+    list_layer_des = [input_layer]
+
+    # 残差
+    conv_res = tf.keras.layers.Add()
+
+    # Identity
+    conv_identity = tf.keras.layers.Conv2D(filters=num_filters_des,
+                                           kernel_size=size_kernel_bk,
+                                           strides=(1, 1),
+                                           padding="same")
 
     # 密集连接卷积网络
-    for layer in range(num_layers_des_b):
+    for layer in range(num_layers_des):
         # ==========定义密集卷积单元卷积层==========
         # Bottleneck
-        conv_bk = tf.keras.layers.Conv2D(
-            filters=num_filters_des_b, kernel_size=size_kernel_bk, strides=(1, 1), padding="same")
+        conv_bk = tf.keras.layers.Conv2D(filters=num_filters_des,
+                                         kernel_size=size_kernel_bk,
+                                         strides=(1, 1),
+                                         padding="same")
 
         # Convolution
-        conv_des = tf.keras.layers.Conv2D(
-            filters=num_filters_des_b, kernel_size=size_kernel_des_b, strides=(1, 1), padding="same", activation="relu")
+        conv_des = tf.keras.layers.Conv2D(filters=num_filters_des,
+                                          kernel_size=size_kernel_des,
+                                          strides=(1, 1),
+                                          padding="same",
+                                          activation=tf.keras.layers.ReLU())
 
         # Concatenate
         concat_des = tf.keras.layers.Concatenate(-1)
@@ -69,78 +73,100 @@ def DenseConvBlock(layer_input):
         layer_bk = conv_bk(layer_before)
         layer_des = conv_des(layer_bk)
 
+        # 如果是最后一层,不需要concat
+        if (layer + 1 == num_layers_des):
+            layer_latest = layer_des
+
         # 当前输出添加到列表
         list_layer_des.append(layer_des)
 
         # Concat
         layer_before = concat_des(list_layer_des[:])
 
-    # Bottleneck
-    conv_bk = tf.keras.layers.Conv2D(
-        filters=num_filters_des_b, kernel_size=size_kernel_bk, strides=(1, 1), padding="same")
+    #
+    layer_identity = conv_identity(input_layer)
 
-    # 瓶颈层压缩特征图后输出
-    layer_des_output = conv_bk(layer_before)
+    # 残差后输出
+    layer_res_out = conv_res([layer_latest, layer_identity])
 
-    return layer_des_output
+    return layer_res_out
 
 
-def DenseConv(layer_input):
-    # 定义预处理层
-    conv_pre = tf.keras.layers.Conv2D(
-        filters=num_filters_pre, kernel_size=size_kernel_pre, strides=(1, 1), padding="valid", activation=tf.keras.layers.PReLU())
+def GlobalFeatureFusion(local_features):
+    conv_bk = tf.keras.layers.Conv2D(filters=num_filters_gff,
+                                     kernel_size=size_kernel_bk,
+                                     strides=(1, 1),
+                                     padding="same")
 
-    # 定义全局特征融合
-    conv_gff = tf.keras.layers.Conv2D(
-        filters=num_filters_gff, kernel_size=size_kernel_bk, strides=(1, 1), padding="same")
+    conv_gff = tf.keras.layers.Conv2D(filters=num_filters_gff,
+                                      kernel_size=size_kernel_gff,
+                                      strides=(1, 1),
+                                      padding="valid",
+                                      activation=tf.keras.layers.PReLU())
 
-    # 定义全局特征融合后卷积1
-    conv_1 = tf.keras.layers.Conv2D(filters=num_filters_conv1, kernel_size=size_kernel_conv1, strides=(
-        1, 1), padding="valid", activation=tf.keras.layers.PReLU())
+    # Concatenate
+    concat_gff = tf.keras.layers.Concatenate(-1)
 
+    # 局部特征联级
+    layer_concat = concat_gff(local_features)
+
+    # 全局特征融合
+    layer_bk = conv_bk(layer_concat)
+
+    layer_gff = conv_gff(layer_bk)
+
+    return layer_gff
+
+
+def PixelShuffle(input_features):
     # 定义亚像素卷积层
-    conv_sub = tf.keras.layers.Lambda(lambda x: tf.nn.depth_to_space(x, 2))
+    conv_sub = tf.keras.layers.Lambda(
+        lambda input: tf.nn.depth_to_space(input, multiple))
 
-    # 定义像素重组后卷积2
-    conv_2 = tf.keras.layers.Conv2D(filters=num_filters_conv2, kernel_size=size_kernel_conv2, strides=(
-        1, 1), padding="valid")
+    # 像素重组后卷积
+    conv_ps = tf.keras.layers.Conv2D(filters=num_filters_ps,
+                                     kernel_size=size_kernel_ps,
+                                     strides=(1, 1),
+                                     padding="valid")
 
-    layer_pre = conv_pre(layer_input)
+    layer_sub = conv_sub(input_features)
 
-    # 在循环前 第一层为输入数据
-    layer_before = layer_pre
+    layer_ps = conv_ps(layer_sub)
 
-    # 用于存储输入前所有层数
-    list_layer_des = [layer_before]
+    return layer_ps
 
-    for layer in range(num_layers_des):
-        # 定义Bottleneck
-        conv_bk = tf.keras.layers.Conv2D(
-            filters=num_filters_des_b, kernel_size=size_kernel_bk, strides=(1, 1), padding="same")
 
-        # 定义Concatenate
-        concat_des = tf.keras.layers.Concatenate(-1)
+def MSDenseResidualNetwork(input_layer):
+    conv_pre = tf.keras.layers.Conv2D(filters=num_filters_pre,
+                                      kernel_size=size_kernel_pre,
+                                      strides=(1, 1),
+                                      padding="valid",
+                                      activation=tf.keras.layers.PReLU())
 
-        # 压缩输入
-        layer_bk = conv_bk(layer_before)
+    layer_pre = conv_pre(input_layer)
 
-        # 输入到密集块
-        layer_des = DenseConvBlock(layer_bk)
+    layer_DRB3_1 = DenseResBlock(
+        input_layer=layer_pre, size_kernel_des=3, num_layers_des=4)
+    layer_DRB3_2 = DenseResBlock(
+        input_layer=layer_DRB3_1, size_kernel_des=3, num_layers_des=4)
+    layer_DRB3_3 = DenseResBlock(
+        input_layer=layer_DRB3_2, size_kernel_des=3, num_layers_des=4)
+    layer_DRB3_4 = DenseResBlock(
+        input_layer=layer_DRB3_3, size_kernel_des=3, num_layers_des=4)
 
-        # 密集联级
-        list_layer_des.append(layer_des)
-        layer_before = concat_des(list_layer_des[:])
+    layer_DRB5_1 = DenseResBlock(
+        input_layer=layer_pre, size_kernel_des=5, num_layers_des=3)
+    layer_DRB5_2 = DenseResBlock(
+        input_layer=layer_DRB5_1, size_kernel_des=5, num_layers_des=3)
+    layer_DRB5_3 = DenseResBlock(
+        input_layer=layer_DRB5_2, size_kernel_des=5, num_layers_des=3)
 
-    # 全局密集特征融合
-    layer_gff = conv_gff(layer_before)
-    # 卷积
-    layer_conv1 = conv_1(layer_gff)
-    # 像素重组
-    layer_sub = conv_sub(layer_conv1)
-    # 卷积
-    layer_conv2 = conv_2(layer_sub)
+    global_feature_fusion = GlobalFeatureFusion(
+        [layer_pre, layer_DRB3_1, layer_DRB3_2, layer_DRB3_3, layer_DRB3_4, layer_DRB5_1, layer_DRB5_2, layer_DRB5_3])
 
-    return layer_conv2
+    pixel_shuffle = PixelShuffle(global_feature_fusion)
+
+    return pixel_shuffle
 
 
 def DeployModel():
@@ -148,7 +174,7 @@ def DeployModel():
     inputs = tf.keras.Input(shape=(size_lr, size_lr, num_input_channel))
 
     # 输出
-    outputs = DenseConv(inputs)
+    outputs = MSDenseResidualNetwork(inputs)
 
     model = tf.keras.Model(inputs=inputs, outputs=outputs, name="output")
 

@@ -1,5 +1,5 @@
 # Entropia
-![image](https://github.com/2ndDog/Entropia/blob/master/Entropia/Entropia.svg)
+![image](https://raw.githubusercontent.com/2ndDog/Entropia/master/Entropia.svg)
 
 
 Entropia 来自于 Entropy 的意大利语，意为“熵”，我们的计算机视觉技术意味着提高图像的熵。

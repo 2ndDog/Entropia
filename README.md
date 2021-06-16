@@ -20,8 +20,8 @@ Entropia 来自于 Entropy 的意大利语，意为“熵”，我们的计算�
 ![image](https://github.com/2ndDog/Entropia/blob/master/RDB_model_SVG.svg)
 
 
-### MRDN超分辨率重建结果
-![image](https://github.com/2ndDog/Entropia/blob/master/MRDN.png)
+### RDDLNx2动画模型
+![image](https://github.com/2ndDog/Entropia/blob/master/Hatsune_Miku_NT_x2.png?raw=true)
 
 
 在x2缩放因子下，分别为双三次插值、我们的MRDN和原图

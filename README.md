@@ -8,7 +8,7 @@ Entropia 来自于 Entropy 的意大利语，意为“熵”，我们的计算�
 #
 基于RDDLN(残差密集深度分级网络, Residual Dense Deep-Levels Network)的单图像超分辨率
 
-⚠GPU版本需CUDA-11.1
+⚠⚠⚠GPU版本需CUDA-11.1
 
 
 ### RDDLN模型

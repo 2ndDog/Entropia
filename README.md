@@ -6,11 +6,11 @@ Entropia 来自于 Entropy 的意大利语，意为“熵”，我们的计算�
 
 
 #
-基于MDRN(多尺度密集残差网络, Multi-scale residual dense network)的单图像超分辨率
+基于RDDLN(残差密集深度分级网络, Residual Dense Deep-Levels Network)的单图像超分辨率
 
 
-### MRDN模型
-![image](https://github.com/2ndDog/Entropia/blob/master/MRDN_model_SVG.svg)
+### RDDLN模型
+![image](https://raw.githubusercontent.com/2ndDog/Entropia/master/RDDLN.svg)
 
 
 

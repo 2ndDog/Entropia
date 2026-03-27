@@ -26,6 +26,3 @@ Entropia 来自于 Entropy 的意大利语，意为“熵”，我们的计算�
 
 
 
-
-### RDDLN-JPEG模型
-![image](https://github.com/2ndDog/Entropia/blob/master/RDDLN_JPEG.png?raw=true)
